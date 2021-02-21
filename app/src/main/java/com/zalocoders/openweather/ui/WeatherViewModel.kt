@@ -52,7 +52,14 @@ class WeatherViewModel @ViewModelInject constructor(
         }
     }
 
-    fun convertToPortuguese(isConverted:Boolean) {
+    fun getWeatherOfTenEuropeanCitiesInPortuguese(id: String, lang: String = "pt") {
+        viewModelScope.launch {
+            _multipleWeatherLiveData.value =
+                repository.getWeatherOfTenEuropeanCities(id, BuildConfig.OPEN_WEATHER_API_KEY, lang)
+        }
+    }
+
+    fun convertToPortuguese(isConverted: Boolean) {
         _isConverted.value = isConverted
 
     }

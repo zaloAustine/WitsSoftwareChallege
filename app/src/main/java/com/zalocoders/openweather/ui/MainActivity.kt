@@ -18,31 +18,30 @@ import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
 
-
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private val viewModel: WeatherViewModel by viewModels()
-    private lateinit var binding: ActivityMainBinding
     private val DEGREES = "\u00B0"
-    lateinit var weatherAdapter: WeatherAdapter
+    lateinit var weatherWeatherAdapter: WeatherAdapter
 
     @Inject
     lateinit var preferenceHelper: PreferenceHelper
-
+    lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        weatherAdapter = WeatherAdapter()
-        binding.adapter = weatherAdapter
+        weatherWeatherAdapter = WeatherAdapter()
+        binding.weatherList.recyclerview.adapter = weatherWeatherAdapter
 
         getCitiesWeather()
         checkSwitchValue()
         airLocation.start()
         observeCurrentWeather()
+        observeWeatherOfTenCities()
     }
 
     private fun checkSwitchValue() {
@@ -89,11 +88,18 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun getCitiesWeather() {
-        viewModel.getWeatherOfTenEuropeanCities("833,2960")
+        viewModel.getWeatherOfTenEuropeanCities("2267056,3117735,4246659,4500771,2618425,3169070,3846616,4192205,2264341,2761369")
+    }
+
+    private fun getCitiesWeatherInPortuguese() {
+        viewModel.getWeatherOfTenEuropeanCitiesInPortuguese("2267056,3117735,4246659,4500771,2618425,3169070,3846616,4192205,2264341,2761369")
+    }
+
+    private fun observeWeatherOfTenCities() {
         viewModel.multipleWeatherLiveData.observe(this, {
             when (it) {
                 is Resource.Success -> {
-                    weatherAdapter.submitList(it.value.list)
+                    weatherWeatherAdapter.submitList(it.value.list)
                 }
                 is Resource.Failure -> {
                 }
@@ -126,10 +132,13 @@ class MainActivity : AppCompatActivity() {
 
             preferenceHelper.putLat(locations[0].latitude.toString())
             preferenceHelper.putLong(locations[0].longitude.toString())
+
             getCurrentLocationWeather(
                 locations[0].latitude.toString(),
                 locations[0].longitude.toString()
             ).toString()
+
+            getCitiesWeather()
 
             // observe change
             observeConversion(locations)
@@ -166,17 +175,18 @@ class MainActivity : AppCompatActivity() {
                     locations[0].latitude.toString(),
                     locations[0].longitude.toString()
                 )
+
+                getCitiesWeatherInPortuguese()
             } else {
                 getCurrentLocationWeather(
                     locations[0].latitude.toString(),
                     locations[0].longitude.toString()
-                ).toString()
+                )
+
+                getCitiesWeather()
             }
         })
 
-    private fun setupRecyclerView() {
-
-    }
 }
 
 

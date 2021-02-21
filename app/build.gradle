@@ -4,6 +4,8 @@ apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'dagger.hilt.android.plugin'
 apply plugin: "androidx.navigation.safeargs"
+apply plugin: "org.jetbrains.kotlin.kapt"
+
 
 android {
     compileSdkVersion 30
@@ -19,12 +21,13 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
-    dataBinding {
-        enabled = true
-    }
-
     buildFeatures {
+        dataBinding true
         viewBinding true
+
+    }
+    kapt {
+        generateStubs = true
     }
 
     buildTypes {
@@ -71,9 +74,6 @@ dependencies {
     implementation "androidx.hilt:hilt-lifecycle-viewmodel:1.0.0-alpha02"
     kapt "androidx.hilt:hilt-compiler:1.0.0-alpha02"
 
-    //Fragment
-    implementation "androidx.fragment:fragment-ktx:1.2.5"
-
     //Activity ktx
     implementation "androidx.activity:activity-ktx:1.1.0"
 
@@ -117,5 +117,14 @@ dependencies {
 
     //location
     implementation 'com.github.mumayank:AirLocation:2.4' // this line
+
+    // Android KTX
+    implementation 'androidx.core:core-ktx:1.0.0-rc01'
+    implementation 'androidx.fragment:fragment-ktx:1.0.0-rc01'
+
+
+    kapt 'com.android.databinding:compiler:3.1.1'
+
+
 
 }

@@ -35,4 +35,13 @@
         <item name="android:windowExitAnimation">@anim/slide_down</item>
     </style>
 
+    <style name="Theme.OpenWeather.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="Theme.OpenWeather.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="Theme.OpenWeather.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
 </resources>

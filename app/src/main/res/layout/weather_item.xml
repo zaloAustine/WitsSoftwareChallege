@@ -1,78 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
-
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:gravity="center"
-    android:orientation="vertical">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
 
         <variable
-            android:name="weather"
-            android:type="com.zalocoders.openweather.models.MultipleWeather" />
+            name="item"
+            type="com.zalocoders.openweather.models.MultipleWeather" />
     </data>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:orientation="horizontal">
-
-        <TextView
-            android:id="@+id/cityTv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="12dp"
-            android:fontFamily="@font/roboto_slab_light"
-            android:gravity="start"
-            android:text="Nairobi"
-            android:textColor="@color/black"
-            android:textSize="18sp" />
-
+        android:orientation="vertical"
+        android:padding="18dp">
 
         <LinearLayout
-            android:id="@+id/linearLayout3"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#00BCD4"
-            android:orientation="vertical"
-            android:padding="12dp">
+            android:gravity="center"
+            android:orientation="horizontal">
 
+            <TextView
+                android:id="@+id/cityTv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="12dp"
+                android:layout_weight="1"
+                android:fontFamily="@font/roboto_slab_light"
+                android:gravity="start"
+                android:text="Nairobi"
+                android:textColor="@color/colorAccent"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/descriptionTv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="12dp"
+                android:layout_weight="1"
+                android:fontFamily="@font/roboto_slab_light" />
 
             <ImageView
                 android:id="@+id/iconImageView"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:backgroundTint="@color/black"
-                android:src="@drawable/humidity" />
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:background="#A9B6B6B6"
+                android:src="@drawable/humidity"
+                app:setImageUrl="@{item.weather[0].icon}" />
+
+
+            <TextView
+                android:id="@+id/tempTv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="12dp"
+                android:layout_weight="1"
+                android:fontFamily="@font/roboto_slab_light"
+                android:text="23"
+                android:textColor="@color/colorAccent" />
 
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="12dp"
-            android:fontFamily="@font/roboto_slab_light"
-            android:text="12-34-2021" />
-
-        <TextView
-            android:id="@+id/tempTv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="12dp"
-            android:fontFamily="@font/roboto_slab_light"
-            android:text="23"
-            android:textColor="@color/colorAccent" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#E8E6E6" />
 
     </LinearLayout>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="#E8E6E6" />
-</LinearLayout>
+
+</layout>
