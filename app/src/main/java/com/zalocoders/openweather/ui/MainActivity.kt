@@ -4,6 +4,7 @@ import android.content.Intent
 import android.location.Location
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.zalocoders.openweather.Adapters.WeatherAdapter
@@ -37,6 +38,14 @@ class MainActivity : AppCompatActivity() {
         weatherWeatherAdapter = WeatherAdapter()
         binding.weatherList.recyclerview.adapter = weatherWeatherAdapter
 
+        binding.weatherList.swipeToRefresh.setOnRefreshListener {
+            getCitiesWeather()
+            getCurrentLocationWeather(
+                preferenceHelper.isLat,
+                preferenceHelper.isLong
+            )
+        }
+
         getCitiesWeather()
         checkSwitchValue()
         airLocation.start()
@@ -65,6 +74,7 @@ class MainActivity : AppCompatActivity() {
     private fun observeCurrentWeather() {
         viewModel.myWeatherLiveData.observe(this, {
 
+            binding.weatherList.swipeToRefresh.isRefreshing = false
             when (it) {
                 is Resource.Success -> {
 
@@ -74,10 +84,13 @@ class MainActivity : AppCompatActivity() {
                 }
                 is Resource.Failure -> {
                     binding.progressBar.visibility = View.GONE
+                    Toast.makeText(this, "An error occurred", Toast.LENGTH_SHORT)
+                        .show()
 
                 }
                 is Resource.Loading -> {
                     binding.progressBar.visibility = View.VISIBLE
+                    Toast.makeText(this, "An error occurred Swipe to refresh", Toast.LENGTH_SHORT)
 
                 }
                 else -> {
@@ -97,13 +110,20 @@ class MainActivity : AppCompatActivity() {
 
     private fun observeWeatherOfTenCities() {
         viewModel.multipleWeatherLiveData.observe(this, {
+            binding.weatherList.swipeToRefresh.isRefreshing = false
+
             when (it) {
                 is Resource.Success -> {
                     weatherWeatherAdapter.submitList(it.value.list)
                 }
                 is Resource.Failure -> {
+                    Toast.makeText(this, "An error occurred", Toast.LENGTH_SHORT)
+                        .show()
                 }
                 else -> {
+                    Toast.makeText(this, "An error occurred Swipe to refresh", Toast.LENGTH_SHORT)
+                        .show()
+
                 }
             }
         })
