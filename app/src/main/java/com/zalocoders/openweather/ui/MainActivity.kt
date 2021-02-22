@@ -1,5 +1,6 @@
 package com.zalocoders.openweather.ui
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.location.Location
 import android.os.Bundle
@@ -8,8 +9,10 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.zalocoders.openweather.Adapters.WeatherAdapter
+import com.zalocoders.openweather.R
 import com.zalocoders.openweather.commons.Resource
 import com.zalocoders.openweather.databinding.ActivityMainBinding
+import com.zalocoders.openweather.models.Coord
 import com.zalocoders.openweather.models.MyCurrentWeatherResponse
 import com.zalocoders.openweather.utils.Icons
 import com.zalocoders.openweather.utils.PreferenceHelper
@@ -20,7 +23,7 @@ import java.util.*
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), WeatherAdapter.CallbackInterface {
 
     private val viewModel: WeatherViewModel by viewModels()
     private val DEGREES = "\u00B0"
@@ -35,8 +38,16 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        weatherWeatherAdapter = WeatherAdapter()
-        binding.weatherList.recyclerview.adapter = weatherWeatherAdapter
+        setUpRecyclerview()
+
+        airLocation.start()
+
+        getCitiesWeather()
+        observeWeatherOfTenCities()
+        observeCurrentWeather()
+
+        checkSwitchValue()
+        moveToMyLocation()
 
         binding.weatherList.swipeToRefresh.setOnRefreshListener {
             getCitiesWeather()
@@ -44,17 +55,32 @@ class MainActivity : AppCompatActivity() {
                 preferenceHelper.isLat,
                 preferenceHelper.isLong
             )
-        }
 
-        getCitiesWeather()
-        checkSwitchValue()
-        airLocation.start()
-        observeCurrentWeather()
-        observeWeatherOfTenCities()
+        }
+    }
+
+    private fun setUpRecyclerview() {
+        weatherWeatherAdapter = WeatherAdapter(this)
+        binding.weatherList.recyclerview.adapter = weatherWeatherAdapter
+
+    }
+
+    /*this method enable user to view weather of his location after
+    /navigation through other locations*/
+    private fun moveToMyLocation() {
+        binding.myLocation.setOnClickListener {
+            getCurrentLocationWeather(
+                preferenceHelper.isLat.trim(),
+                preferenceHelper.isLong.trim()
+            )
+
+            expandAppBarLayout()
+            binding.myLocation.visibility = View.GONE
+        }
     }
 
     private fun checkSwitchValue() {
-        binding.languageSwitch.setOnCheckedChangeListener { compoundButton, boolean ->
+        binding.languageSwitch.setOnCheckedChangeListener { compoundButton, _ ->
             if (compoundButton.isChecked) {
                 viewModel.convertToPortuguese(true)
             } else {
@@ -77,21 +103,21 @@ class MainActivity : AppCompatActivity() {
             binding.weatherList.swipeToRefresh.isRefreshing = false
             when (it) {
                 is Resource.Success -> {
-
                     populateCurrentWeather(it.value)
                     binding.progressBar.visibility = View.GONE
 
                 }
                 is Resource.Failure -> {
                     binding.progressBar.visibility = View.GONE
-                    Toast.makeText(this, "An error occurred", Toast.LENGTH_SHORT)
+                    Toast.makeText(
+                        this,
+                        "An Error Occurred check Internet\n Swipe to refresh",
+                        Toast.LENGTH_SHORT
+                    )
                         .show()
-
                 }
                 is Resource.Loading -> {
                     binding.progressBar.visibility = View.VISIBLE
-                    Toast.makeText(this, "An error occurred Swipe to refresh", Toast.LENGTH_SHORT)
-
                 }
                 else -> {
 
@@ -101,11 +127,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun getCitiesWeather() {
-        viewModel.getWeatherOfTenEuropeanCities("2267056,3117735,4246659,4500771,2618425,3169070,3846616,4192205,2264341,2761369")
+        viewModel.getWeatherOfTenEuropeanCities(getString(R.string.multipleCitesId))
     }
 
     private fun getCitiesWeatherInPortuguese() {
-        viewModel.getWeatherOfTenEuropeanCitiesInPortuguese("2267056,3117735,4246659,4500771,2618425,3169070,3846616,4192205,2264341,2761369")
+        viewModel.getWeatherOfTenEuropeanCitiesInPortuguese(getString(R.string.multipleCitesId))
     }
 
     private fun observeWeatherOfTenCities() {
@@ -115,24 +141,29 @@ class MainActivity : AppCompatActivity() {
             when (it) {
                 is Resource.Success -> {
                     weatherWeatherAdapter.submitList(it.value.list)
+                    binding.progressBar.visibility = View.GONE
+
                 }
                 is Resource.Failure -> {
-                    Toast.makeText(this, "An error occurred", Toast.LENGTH_SHORT)
+                    Toast.makeText(this, "An Error Occurred check Internet", Toast.LENGTH_SHORT)
                         .show()
+                    binding.progressBar.visibility = View.GONE
+
+
                 }
-                else -> {
-                    Toast.makeText(this, "An error occurred Swipe to refresh", Toast.LENGTH_SHORT)
-                        .show()
+                is Resource.Loading -> {
+                    binding.progressBar.visibility = View.VISIBLE
+
 
                 }
             }
         })
     }
 
+    @SuppressLint("SetTextI18n")
     private fun populateCurrentWeather(myCurrentWeatherResponse: MyCurrentWeatherResponse) {
 
         binding.descriptionTv.text = myCurrentWeatherResponse.weather[0].description
-        binding.country.text = myCurrentWeatherResponse.sys.country
 
         binding.tempTv.text = myCurrentWeatherResponse.main.temp?.toInt().toString() + DEGREES
         binding.cityTv.text = myCurrentWeatherResponse.name
@@ -141,10 +172,9 @@ class MainActivity : AppCompatActivity() {
             SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date()).toString()
         Icons.setWeatherIcon(binding.iconImageView, myCurrentWeatherResponse.weather[0].icon)
 
-        binding.humidityTv.text =
-            myCurrentWeatherResponse.main.humidity.toString() + " %" + " \nhumidity"
     }
 
+    // requests and gets user location
     private val airLocation = AirLocation(this, object : AirLocation.Callback {
 
         override fun onSuccess(locations: ArrayList<Location>) {
@@ -156,11 +186,9 @@ class MainActivity : AppCompatActivity() {
             getCurrentLocationWeather(
                 locations[0].latitude.toString(),
                 locations[0].longitude.toString()
-            ).toString()
+            )
 
             getCitiesWeather()
-
-            // observe change
             observeConversion(locations)
         }
 
@@ -206,6 +234,19 @@ class MainActivity : AppCompatActivity() {
                 getCitiesWeather()
             }
         })
+
+    override fun passResultCallback(coordinates: Coord) {
+        binding.myLocation.visibility = View.VISIBLE
+        getCurrentLocationWeather(
+            coordinates.lat.toString(),
+            coordinates.lon.toString()
+        )
+        expandAppBarLayout()
+    }
+
+    private fun expandAppBarLayout() {
+        binding.appBar.setExpanded(true, true)
+    }
 
 }
 

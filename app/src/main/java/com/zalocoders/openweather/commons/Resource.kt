@@ -1,7 +1,5 @@
 package com.zalocoders.openweather.commons
 
-import okhttp3.ResponseBody
-
 
 sealed class Resource<out T> {
 
@@ -10,8 +8,8 @@ sealed class Resource<out T> {
     data class Failure(
         val isNetworkError: Boolean,
         val errorCode: Int?,
-        val errorBody: ResponseBody?
+        val errorBody: String
     ) : Resource<Nothing>()
 
-    data class Loading(val isLoading:Boolean) : Resource<Nothing>()
+    data class Loading(val isLoading: Boolean) : Resource<Nothing>()
 }
