@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.zalocoders.openweather.Adapters.WeatherAdapter
 import com.zalocoders.openweather.commons.Resource
 import com.zalocoders.openweather.databinding.ActivityMainBinding
+import com.zalocoders.openweather.models.Coord
 import com.zalocoders.openweather.models.MyCurrentWeatherResponse
 import com.zalocoders.openweather.utils.Icons
 import com.zalocoders.openweather.utils.PreferenceHelper
@@ -20,7 +21,7 @@ import java.util.*
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), WeatherAdapter.CallbackInterface {
 
     private val viewModel: WeatherViewModel by viewModels()
     private val DEGREES = "\u00B0"
@@ -35,7 +36,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        weatherWeatherAdapter = WeatherAdapter()
+        weatherWeatherAdapter = WeatherAdapter(this)
         binding.weatherList.recyclerview.adapter = weatherWeatherAdapter
 
         binding.weatherList.swipeToRefresh.setOnRefreshListener {
@@ -44,6 +45,7 @@ class MainActivity : AppCompatActivity() {
                 preferenceHelper.isLat,
                 preferenceHelper.isLong
             )
+
         }
 
         getCitiesWeather()
@@ -51,6 +53,23 @@ class MainActivity : AppCompatActivity() {
         airLocation.start()
         observeCurrentWeather()
         observeWeatherOfTenCities()
+        moveToMyLocation()
+    }
+
+    private fun moveToMyLocation() {
+
+        binding.myLocation.setOnClickListener {
+            getCurrentLocationWeather(
+                preferenceHelper.isLat.trim(),
+                preferenceHelper.isLong.trim()
+            )
+
+            observeCurrentWeather()
+
+            expandAppBarLayout(true, true)
+            binding.myLocation.visibility = View.GONE
+
+        }
     }
 
     private fun checkSwitchValue() {
@@ -84,13 +103,12 @@ class MainActivity : AppCompatActivity() {
                 }
                 is Resource.Failure -> {
                     binding.progressBar.visibility = View.GONE
-                    Toast.makeText(this, "An error occurred", Toast.LENGTH_SHORT)
+                    Toast.makeText(this, it.errorBody, Toast.LENGTH_SHORT)
                         .show()
 
                 }
                 is Resource.Loading -> {
                     binding.progressBar.visibility = View.VISIBLE
-                    Toast.makeText(this, "An error occurred Swipe to refresh", Toast.LENGTH_SHORT)
 
                 }
                 else -> {
@@ -117,8 +135,8 @@ class MainActivity : AppCompatActivity() {
                     weatherWeatherAdapter.submitList(it.value.list)
                 }
                 is Resource.Failure -> {
-                    Toast.makeText(this, "An error occurred", Toast.LENGTH_SHORT)
-                        .show()
+                    Toast.makeText(this, it.errorBody, Toast.LENGTH_SHORT)
+
                 }
                 else -> {
                     Toast.makeText(this, "An error occurred Swipe to refresh", Toast.LENGTH_SHORT)
@@ -141,8 +159,6 @@ class MainActivity : AppCompatActivity() {
             SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date()).toString()
         Icons.setWeatherIcon(binding.iconImageView, myCurrentWeatherResponse.weather[0].icon)
 
-        binding.humidityTv.text =
-            myCurrentWeatherResponse.main.humidity.toString() + " %" + " \nhumidity"
     }
 
     private val airLocation = AirLocation(this, object : AirLocation.Callback {
@@ -156,7 +172,7 @@ class MainActivity : AppCompatActivity() {
             getCurrentLocationWeather(
                 locations[0].latitude.toString(),
                 locations[0].longitude.toString()
-            ).toString()
+            )
 
             getCitiesWeather()
 
@@ -206,6 +222,19 @@ class MainActivity : AppCompatActivity() {
                 getCitiesWeather()
             }
         })
+
+    override fun passResultCallback(coordinates: Coord) {
+        binding.myLocation.visibility = View.VISIBLE
+        getCurrentLocationWeather(
+            coordinates.lat.toString(),
+            coordinates.lon.toString()
+        )
+        expandAppBarLayout(true, true)
+    }
+
+    fun expandAppBarLayout(expand: Boolean, isAnimationEnabled: Boolean) {
+        binding.appBar.setExpanded(expand, isAnimationEnabled)
+    }
 
 }
 

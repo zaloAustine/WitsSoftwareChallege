@@ -7,10 +7,13 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
 import com.zalocoders.openweather.databinding.WeatherItemBinding
+import com.zalocoders.openweather.models.Coord
 import com.zalocoders.openweather.models.MultipleWeather
 
 
-class WeatherAdapter :
+class WeatherAdapter(
+    private val callbackInterface: CallbackInterface
+) :
     ListAdapter<MultipleWeather, WeatherAdapter.WeatherViewHolder>(Companion) {
 
     class WeatherViewHolder(val binding: WeatherItemBinding) : RecyclerView.ViewHolder(binding.root)
@@ -41,9 +44,18 @@ class WeatherAdapter :
         holder.binding.cityTv.text = weather.name
         holder.binding.descriptionTv.text = weather.weather[0].description
 
+        holder.binding.weatherItem.setOnClickListener {
+            callbackInterface.passResultCallback(weather.coord)
+
+        }
+
         Picasso.get().load("https://openweathermap.org/img/wn/${weather.weather[0].icon}.png")
             .into(holder.binding.iconImageView)
 
         holder.binding.tempTv.text = weather.main.temp.toString() + DEGREES
+    }
+
+    interface CallbackInterface {
+        fun passResultCallback(coordinates: Coord)
     }
 }

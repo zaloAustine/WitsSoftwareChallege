@@ -23,7 +23,7 @@ class PreferenceHelper @Inject constructor(@ApplicationContext context: Context)
 
     fun putLong(long: String) {
         val edit = sharedPreferences.edit()
-        edit.putString(PREFS_LAT, long)
+        edit.putString(PREFS_LONG, long)
         edit.apply()
     }
 

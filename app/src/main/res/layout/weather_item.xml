@@ -10,6 +10,7 @@
     </data>
 
     <LinearLayout
+        android:id="@+id/weatherItem"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
@@ -31,8 +32,9 @@
                 android:fontFamily="@font/roboto_slab_light"
                 android:gravity="start"
                 android:text="Nairobi"
-                android:textColor="@color/colorAccent"
-                android:textSize="16sp" />
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/descriptionTv"
@@ -50,7 +52,6 @@
                 android:src="@drawable/humidity"
                 app:setImageUrl="@{item.weather[0].icon}" />
 
-
             <TextView
                 android:id="@+id/tempTv"
                 android:layout_width="match_parent"
@@ -59,7 +60,8 @@
                 android:layout_weight="1"
                 android:fontFamily="@font/roboto_slab_light"
                 android:text="23"
-                android:textColor="@color/colorAccent" />
+                android:textColor="@color/colorAccent"
+                android:textStyle="bold" />
 
         </LinearLayout>
 

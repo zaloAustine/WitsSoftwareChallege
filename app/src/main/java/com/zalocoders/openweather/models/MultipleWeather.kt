@@ -29,4 +29,4 @@ data class MultipleWeather(
     val weather: List<Weather>,
     @Json(name = "wind")
     val wind: Wind
-):Parcelable
+) : Parcelable
