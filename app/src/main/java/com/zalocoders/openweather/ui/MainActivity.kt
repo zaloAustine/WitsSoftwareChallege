@@ -2,20 +2,25 @@ package com.zalocoders.openweather.ui
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.content.res.Resources
+import android.graphics.Rect
 import android.location.Location
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.RecyclerView
 import com.zalocoders.openweather.Adapters.WeatherAdapter
 import com.zalocoders.openweather.R
 import com.zalocoders.openweather.commons.Resource
 import com.zalocoders.openweather.databinding.ActivityMainBinding
-import com.zalocoders.openweather.models.Coord
 import com.zalocoders.openweather.models.MyCurrentWeatherResponse
+import com.zalocoders.openweather.ui.base.BindingActivity
+import com.zalocoders.openweather.utils.ApiConstants
 import com.zalocoders.openweather.utils.Icons
 import com.zalocoders.openweather.utils.PreferenceHelper
+import com.zalocoders.openweather.utils.Uiutils
 import dagger.hilt.android.AndroidEntryPoint
 import mumayank.com.airlocationlibrary.AirLocation
 import java.text.SimpleDateFormat
@@ -23,20 +28,18 @@ import java.util.*
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity(), WeatherAdapter.CallbackInterface {
+class MainActivity : BindingActivity<ActivityMainBinding>() {
 
     private val viewModel: WeatherViewModel by viewModels()
-    private val DEGREES = "\u00B0"
     lateinit var weatherWeatherAdapter: WeatherAdapter
 
     @Inject
     lateinit var preferenceHelper: PreferenceHelper
-    lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+
+        binding.lifecycleOwner = this
 
         setUpRecyclerview()
 
@@ -48,25 +51,54 @@ class MainActivity : AppCompatActivity(), WeatherAdapter.CallbackInterface {
 
         checkSwitchValue()
         moveToMyLocation()
+        swipeToRefresh()
 
-        binding.weatherList.swipeToRefresh.setOnRefreshListener {
-            getCitiesWeather()
-            getCurrentLocationWeather(
-                preferenceHelper.isLat,
-                preferenceHelper.isLong
-            )
-
-        }
     }
 
     private fun setUpRecyclerview() {
-        weatherWeatherAdapter = WeatherAdapter(this)
-        binding.weatherList.recyclerview.adapter = weatherWeatherAdapter
+        weatherWeatherAdapter = WeatherAdapter { coordinates ->
+            binding.myLocation.visibility = View.VISIBLE
+            getCurrentLocationWeather(
+                coordinates.lat.toString(),
+                coordinates.lon.toString()
+            )
 
+            expandAppBarLayout()
+        }
+
+        binding.weatherList.recyclerview.itemAnimator = null
+        binding.weatherList.recyclerview.adapter = weatherWeatherAdapter
+        binding.weatherList.recyclerview.addItemDecoration(object : RecyclerView.ItemDecoration() {
+
+            //set spacing between items
+            override fun getItemOffsets(
+                outRect: Rect,
+                view: View,
+                parent: RecyclerView,
+                state: RecyclerView.State,
+            ) {
+                super.getItemOffsets(outRect, view, parent, state)
+
+                view.layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT
+                view.layoutParams.height = 80.dp
+
+                if (parent.getChildAdapterPosition(view) >= 0) {
+                    outRect.top = 8.dp
+                    outRect.bottom = 8.dp
+                    outRect.left = 12.dp
+                    outRect.right = 12.dp
+                }
+
+            }
+        })
     }
+
+    val Int.dp: Int
+        get() = (this * Resources.getSystem().displayMetrics.density + 0.5f).toInt()
 
     /*this method enable user to view weather of his location after
     /navigation through other locations*/
+
     private fun moveToMyLocation() {
         binding.myLocation.setOnClickListener {
             getCurrentLocationWeather(
@@ -76,6 +108,7 @@ class MainActivity : AppCompatActivity(), WeatherAdapter.CallbackInterface {
 
             expandAppBarLayout()
             binding.myLocation.visibility = View.GONE
+            Uiutils.showSnackBar(it, "Weather set to Current location")
         }
     }
 
@@ -165,7 +198,8 @@ class MainActivity : AppCompatActivity(), WeatherAdapter.CallbackInterface {
 
         binding.descriptionTv.text = myCurrentWeatherResponse.weather[0].description
 
-        binding.tempTv.text = myCurrentWeatherResponse.main.temp?.toInt().toString() + DEGREES
+        binding.tempTv.text =
+            myCurrentWeatherResponse.main.temp?.toInt().toString() + ApiConstants.DEGREES
         binding.cityTv.text = myCurrentWeatherResponse.name
 
         binding.timeTv.text =
@@ -225,6 +259,8 @@ class MainActivity : AppCompatActivity(), WeatherAdapter.CallbackInterface {
                 )
 
                 getCitiesWeatherInPortuguese()
+                Uiutils.showSnackBar(binding.root, "Language set to portuguese")
+
             } else {
                 getCurrentLocationWeather(
                     locations[0].latitude.toString(),
@@ -232,20 +268,25 @@ class MainActivity : AppCompatActivity(), WeatherAdapter.CallbackInterface {
                 )
 
                 getCitiesWeather()
+                Uiutils.showSnackBar(binding.root, "Language set to English")
             }
         })
 
-    override fun passResultCallback(coordinates: Coord) {
-        binding.myLocation.visibility = View.VISIBLE
-        getCurrentLocationWeather(
-            coordinates.lat.toString(),
-            coordinates.lon.toString()
-        )
-        expandAppBarLayout()
-    }
-
     private fun expandAppBarLayout() {
         binding.appBar.setExpanded(true, true)
+    }
+
+    override val layoutResId: Int
+        get() = R.layout.activity_main
+
+    private fun swipeToRefresh() {
+        binding.weatherList.swipeToRefresh.setOnRefreshListener {
+            getCitiesWeather()
+            getCurrentLocationWeather(
+                preferenceHelper.isLat,
+                preferenceHelper.isLong
+            )
+        }
     }
 
 }

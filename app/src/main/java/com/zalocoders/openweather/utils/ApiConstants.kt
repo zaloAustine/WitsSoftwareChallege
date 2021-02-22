@@ -9,4 +9,6 @@ object ApiConstants {
     const val PREFS_LAT = "lat"
     const val PREFS_LONG = "long"
 
+    const val DEGREES = "\u00B0"
+
 }

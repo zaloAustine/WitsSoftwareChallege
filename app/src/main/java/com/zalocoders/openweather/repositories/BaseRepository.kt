@@ -28,11 +28,11 @@ abstract class BaseRepository {
                         Resource.Failure(
                             true,
                             throwable.code(),
-                            throwable.localizedMessage.toString()
+                            throwable.localizedMessage as String
                         )
                     }
                     else -> {
-                        Resource.Failure(false, null, throwable.localizedMessage.toString())
+                        Resource.Failure(false, null, throwable.localizedMessage as String)
                     }
                 }
             }
