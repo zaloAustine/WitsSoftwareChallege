@@ -20,6 +20,14 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
+    signingConfigs {
+        defaultSignature {
+            keyAlias 'key0'
+            keyPassword 'Zalo4868#'
+            storeFile file('keystore.jks')
+            storePassword 'Zalo4868#'
+        }
+    }
 
     buildFeatures {
         dataBinding true

@@ -5,6 +5,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
 
+/*
+This method removes the redundancy of creating new instances
+of coroutine while making network call in the repository
+*/
 abstract class BaseRepository {
 
     suspend fun <T> safeApiCall(

@@ -11,4 +11,4 @@ import kotlinx.android.parcel.Parcelize
 data class Clouds(
     @Json(name = "all")
     val all: Int
-):Parcelable
+) : Parcelable
