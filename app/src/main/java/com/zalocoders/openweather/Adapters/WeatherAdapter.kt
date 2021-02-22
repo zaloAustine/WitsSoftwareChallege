@@ -33,7 +33,7 @@ class WeatherAdapter(
     ) : RecyclerView.ViewHolder(binding.root) {
         fun bind(weather: MultipleWeather) {
             binding.weather = weather
-            binding.weatherItem.setOnClickListener {
+            binding.weatherItemLayout.setOnClickListener {
                 weatherClickListener(weather.coord)
                 Uiutils.showSnackBar(it, "Weather set to ${weather.name}")
 

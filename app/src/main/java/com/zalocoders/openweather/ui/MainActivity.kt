@@ -62,7 +62,6 @@ class MainActivity : BindingActivity<ActivityMainBinding>() {
                 coordinates.lat.toString(),
                 coordinates.lon.toString()
             )
-
             expandAppBarLayout()
         }
 
@@ -98,7 +97,6 @@ class MainActivity : BindingActivity<ActivityMainBinding>() {
 
     /*this method enable user to view weather of his location after
     /navigation through other locations*/
-
     private fun moveToMyLocation() {
         binding.myLocation.setOnClickListener {
             getCurrentLocationWeather(
