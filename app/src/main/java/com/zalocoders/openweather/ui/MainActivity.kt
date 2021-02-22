@@ -150,7 +150,6 @@ class MainActivity : AppCompatActivity(), WeatherAdapter.CallbackInterface {
     private fun populateCurrentWeather(myCurrentWeatherResponse: MyCurrentWeatherResponse) {
 
         binding.descriptionTv.text = myCurrentWeatherResponse.weather[0].description
-        binding.country.text = myCurrentWeatherResponse.sys.country
 
         binding.tempTv.text = myCurrentWeatherResponse.main.temp?.toInt().toString() + DEGREES
         binding.cityTv.text = myCurrentWeatherResponse.name

@@ -39,18 +39,9 @@
                     android:layout_height="wrap_content"
                     android:textAllCaps="false"
                     android:textColor="@color/white"
-                    android:textSize="30sp"
+                    android:textSize="34sp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/country"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAllCaps="true"
-                    android:textColor="@color/white"
-                    app:layout_constraintBaseline_toBaselineOf="@+id/cityTv"
-                    app:layout_constraintStart_toEndOf="@+id/cityTv" />
 
                 <TextView
                     android:id="@+id/timeTv"
@@ -84,15 +75,13 @@
                         android:layout_height="wrap_content"
                         android:text="PT"
                         android:textColor="@color/white" />
-
                 </LinearLayout>
-
 
                 <TextView
                     android:id="@+id/tempTv"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="20dp"
+                    android:layout_marginStart="8dp"
                     android:fontFamily="@font/roboto_slab_light"
                     android:textColor="@color/white"
                     android:textSize="80sp"
